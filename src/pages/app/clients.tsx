@@ -1,23 +1,30 @@
-import { ChevronLeft, ChevronRight, Filter, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 
 import clients from '@/json/clients.json'
-import { useState, type FormEvent } from "react";
+import { useState} from "react";
+import { Pagination } from "@/components/pagination";
+import { ItemsPerPageSwitcher } from "@/components/items-per-page-switcher";
 
 export function Clients() {
   const [page, setPage] = useState(0)
-  const [itemsPerPage, setItemsPerPage] = useState(5)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+
 
   const totalItems = clients.length
   const items = clients.slice((page * itemsPerPage), (itemsPerPage * page) + itemsPerPage)
 
-  const totalPages = Math.round( totalItems / itemsPerPage)
+  const totalPages = Math.ceil( totalItems / itemsPerPage)
 
-  function handleChangePerPage(event: FormEvent<HTMLInputElement>) {
-    const newValue = Number(event.currentTarget.value)
 
-    if (newValue > 0) {
+  function handleDefineItemsPerPage(newValue: number) {
+    if (newValue != 0 && newValue <= totalItems) {
       setItemsPerPage(newValue)
+      setPage(0)
     }
+  }
+
+  function newPage(page: number) {
+    setPage(page)
   }
 
   return (
@@ -49,38 +56,20 @@ export function Clients() {
         </tbody>
       </table>
       <div className="p-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <button className="p-1.5 bg-zinc-700 rounded-lg hover:bg-zinc-600">
-            <ChevronLeft className="size-4" />
-          </button>
-          
-          {Array.from({ length: totalPages}, (_, i) => (
-            <button 
-              onClick={() => setPage(i)}
-              className="p-1.5 bg-zinc-700 rounded-lg w-7 text-xs hover:bg-zinc-600"
-            >
-              {i+1}
-            </button>
-          ))}
-
-          <button 
-            onClick={() => setPage(page + 1)}
-            className="p-1.5 bg-zinc-700 rounded-lg hover:bg-zinc-600"
-          >
-            <ChevronRight className="size-4" />
-          </button>
-        </div>
         <div>
-          <input 
-            type="number" 
-            value={itemsPerPage} 
-            onChange={handleChangePerPage}
-            className="bg-zinc-700"
-          />
-          <button>
-            <Filter className="size-4" />
-          </button>
+          <span className="text-xs text-zinc-400">Total de itens: {totalItems}</span>
         </div>
+
+        <ItemsPerPageSwitcher 
+          handleDefineItemsPerPage={handleDefineItemsPerPage}
+          itemsPerPage={itemsPerPage}
+        />
+
+        <Pagination 
+          page={page}
+          handleSetNewPage={newPage}
+          totalPages={totalPages}
+        />
       </div>
   </>
   )
